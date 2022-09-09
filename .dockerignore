@@ -1,0 +1,12 @@
+.dockerignore
+.gitignore
+Dockerfile
+README.md
+CODE_OF_CONDUCT.md
+LICENSE
+.idea
+.git
+.github
+node_modules
+dist
+images

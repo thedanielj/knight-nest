@@ -1,0 +1,53 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.4.2
+      - name: Create image directory
+        run: mkdir ./images
+      - name: 'Status: Building'
+        uses: joelwmale/webhook-action@master
+        with:
+          url: ${{ secrets.WEBHOOK_URL }}
+          body: '{ "content": "Building started", "username": "${{ github.event.head_commit.message }}", "avatar_url": "${{ secrets.AVATAR_URL }}" }'
+      - name: Build and save Docker image
+        uses: docker-practice/actions-setup-docker@master
+      - run: |
+          docker build -t knight-nest .
+          docker save knight-nest > ./images/knight-nest.tar
+      - name: 'Status: Uploading'
+        uses: joelwmale/webhook-action@master
+        with:
+          url: ${{ secrets.WEBHOOK_URL }}
+          body: '{ "content": "Uploading to hosting", "username": "${{ github.event.head_commit.message }}", "avatar_url": "${{ secrets.AVATAR_URL }}" }'
+      - name: Upload image to hosting
+        uses: wangyucode/sftp-upload-action@v1.3.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          localDir: ./images/
+          remoteDir: ${{ secrets.DIR }}
+      - name: Running Docker image
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd ${{ secrets.DIR }}
+            docker stop $(docker ps -q --filter ancestor=knight-nest)
+            docker load < knight-nest.tar
+            docker run -d -p 3000:3000 knight-nest
+      - name: 'Status: Finished'
+        uses: joelwmale/webhook-action@master
+        with:
+          url: ${{ secrets.WEBHOOK_URL }}
+          body: '{ "content": "Finished", "username": "${{ github.event.head_commit.message }}", "avatar_url": "${{ secrets.AVATAR_URL }}" }'
