@@ -44,4 +44,4 @@ $ npm run test:cov
 
 Knight is [MIT licensed](LICENSE).
 
-Developed by [Headcrab](https://github.com/HeadcrabJ/)
+Developed by [HeadcrabJ](https://github.com/HeadcrabJ/)
