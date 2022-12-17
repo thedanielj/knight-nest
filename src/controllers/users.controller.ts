@@ -87,7 +87,7 @@ export class UsersController {
   @Put('@me/update')
   @Roles(Role.User)
   @ApiBearerAuth()
-  @ApiOkResponse({ description: 'Account deleted' })
+  @ApiOkResponse({ description: 'Account updated' })
   @ApiForbiddenResponse({ description: "You don't have access to this route" })
   @ApiBadRequestResponse({ description: 'Authorization header missing' })
   @ApiNotFoundResponse({ description: 'User not found' })
